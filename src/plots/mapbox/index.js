@@ -91,6 +91,11 @@ exports.layoutAttributes = {
     zoom: {
         valType: 'number',
         dflt: 1
+    },
+
+    // custom geojson or topojson layers
+    layers: {
+
     }
 };
 
