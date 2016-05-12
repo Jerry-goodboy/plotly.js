@@ -11,6 +11,9 @@
 
 var mapboxgl = require('mapbox-gl');
 
+var constants = require('./constants');
+
+
 function Mapbox(opts) {
     this.id = opts.id;
     this.gd = opts.gd;
@@ -63,14 +66,19 @@ proto.createMap = function(fullData, fullLayout, resolve) {
 
     var map = self.map = new mapboxgl.Map({
         container: self.uid,
-        style: 'mapbox://styles/mapbox/' + opts.style,
-        center: [opts.center.lon, opts.center.lat],
+        style: convertStyleUrl(opts.style),
+        center: convertCenter(opts.center),
         zoom: opts.zoom
     });
 
     map.on('load', function() {
+        console.log('map on load')
         self.updateMap(fullData, fullLayout);
         resolve();
+    });
+
+    map.on('load', function() {
+        console.log('map on load.style')
     });
 
     map.on('mousemove', function(eventData) {
@@ -115,6 +123,22 @@ proto.updateMap = function(fullData, fullLayout) {
         traceObj.dispose();
         delete traceHash[id];
     }
+
+    var map = this.map,
+        opts = fullLayout[this.id];
+
+    var styleUrl = map.getStyle().sprite,
+        style = opts.style;
+
+    if(styleUrl !== convertStyleUrl(style)) {
+        console.log('reload style')
+        var styleObject = map.getStyle(convertStyleUrl(style));
+
+        map.setStyle(styleObject);
+    }
+
+    map.setCenter(convertCenter(opts.center));
+    map.setZoom(opts.zoom);
 };
 
 proto.createDiv = function() {
@@ -126,8 +150,10 @@ proto.createDiv = function() {
     this.updateDiv();
 };
 
-proto.updateDiv = function() {
+proto.updateDiv = function(fullLayout) {
     var div = this.div;
+
+    // TODO update dims based on _size
 
     var style = div.style;
     style.position = 'absolute';
@@ -139,4 +165,12 @@ proto.updateDiv = function() {
 proto.destroy = function() {
     this.map.remove();
     this.container.removerChild(this.div);
+};
+
+function convertStyleUrl(style) {
+    return constants.styleUrlPrefix + style + '-' + constants.styleUrlSuffix;
+};
+
+function convertCenter(center) {
+    return [center.lon, center.lat];
 };

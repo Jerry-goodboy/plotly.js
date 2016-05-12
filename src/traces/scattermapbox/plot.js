@@ -24,7 +24,7 @@ function ScatterMapbox(mapbox, uid) {
     this.idLayerMarkers = uid + '-layer-markers';
     this.idLayerLines = uid + '-layer-lines';
 
-    this.sourceLines = new mapboxgl.GeoJSONSource({});
+    this.sourceLines = new mapboxgl.GeoJSONSource();
     this.map.addSource(this.idSourceLines, this.sourceLines);
     this.map.addLayer({
         id: this.idLayerLines,
