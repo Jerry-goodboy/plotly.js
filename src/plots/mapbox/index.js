@@ -12,12 +12,9 @@
 var mapboxgl = require('mapbox-gl');
 
 var Plots = require('../plots');
-var handleSubplotDefaults = require('../subplot_defaults');
-
 var createMapbox = require('./mapbox');
-
-// TODO maybe this should be a config argument?
 var CREDS = require('../../../creds.json');
+
 
 exports.name = 'mapbox';
 
@@ -43,79 +40,13 @@ exports.attributes = {
     }
 };
 
-exports.layoutAttributes = {
-    domain: {
-        x: {
-            valType: 'info_array',
-            role: 'info',
-            items: [
-                {valType: 'number', min: 0, max: 1},
-                {valType: 'number', min: 0, max: 1}
-            ],
-            dflt: [0, 1],
-            description: [
-                'Sets the horizontal domain of this subplot',
-                '(in plot fraction).'
-            ].join(' ')
-        },
-        y: {
-            valType: 'info_array',
-            role: 'info',
-            items: [
-                {valType: 'number', min: 0, max: 1},
-                {valType: 'number', min: 0, max: 1}
-            ],
-            dflt: [0, 1],
-            description: [
-                'Sets the vertical domain of this subplot',
-                '(in plot fraction).'
-            ].join(' ')
-        }
-    },
+exports.layoutAttributes = require('./layout_attributes');
 
-    style: {
-        valType: 'enumerated',
-        values: ['light-v8', 'dark-v8'],
-        dflt: 'streets-v8'
-    },
-    center: {
-        lon: {
-            valType: 'number',
-            dflt: 0
-        },
-        lat: {
-            valType: 'number',
-            dflt: 0
-        }
-    },
-    zoom: {
-        valType: 'number',
-        dflt: 1
-    },
-
-    // custom geojson or topojson layers
-    layers: {
-
-    }
-};
-
-exports.supplyLayoutDefaults = function(layoutIn, layoutOut, fullData) {
-    handleSubplotDefaults(layoutIn, layoutOut, fullData, {
-        type: 'mapbox',
-        attributes: exports.layoutAttributes,
-        handleDefaults: handleDefaults,
-        partition: 'y'
-    });
-};
-
-function handleDefaults(containerIn, containerOut, coerce) {
-    coerce('style');
-    coerce('center.lon');
-    coerce('center.lat');
-    coerce('zoom');
-}
+exports.supplyLayoutDefaults = require('./layout_defaults');
 
 exports.plot = function plotMapbox(gd) {
+
+    // TODO maybe this should be a config argument?
     mapboxgl.accessToken = CREDS.accessToken;
 
     var fullLayout = gd._fullLayout,
