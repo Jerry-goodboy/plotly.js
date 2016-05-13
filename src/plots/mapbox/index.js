@@ -73,4 +73,14 @@ exports.plot = function plotMapbox(gd) {
     }
 };
 
-exports.clean = function() {};
+exports.clean = function(newFullData, newFullLayout, oldFullData, oldFullLayout) {
+    var oldMapboxKeys = Plots.getSubplotIds(oldFullLayout, 'mapbox');
+
+    for(var i = 0; i < oldMapboxKeys.length; i++) {
+        var oldMapboxKey = oldMapboxKeys[i];
+
+        if(!newFullLayout[oldMapboxKey] && !!oldFullLayout[oldMapboxKey]._mapbox) {
+            oldFullLayout[oldMapboxKey]._mapbox.destroy();
+        }
+    }
+};

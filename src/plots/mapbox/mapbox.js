@@ -211,7 +211,8 @@ proto.updateFramework = function(fullLayout) {
 
 proto.destroy = function() {
     this.map.remove();
-    this.container.removerChild(this.div);
+    this.container.removeChild(this.div);
+    this.container.removeChild(this.hoverLayer);
 };
 
 proto.getStyle = function() {
