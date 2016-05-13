@@ -18,17 +18,18 @@ function Mapbox(opts) {
     this.id = opts.id;
     this.gd = opts.gd;
     this.container = opts.container;
-    this.fullLayout = opts.fullLayout;
+    var fullLayout = this.fullLayout = opts.fullLayout;
 
     this.uid = this.fullLayout._uid + '-' + this.id;
     this.opts = this.fullLayout[this.id];
     this.userOpts = this.gd.layout[this.id] || {};
 
-    this.div = null;
+    // create div on instantiation for smoother first plot call
+    this.div = this.createDiv();
+    this.updateDiv(fullLayout);
+
     this.map = null;
     this.traceHash = {};
-
-    this.createDiv();
 }
 
 var proto = Mapbox.prototype;
@@ -45,6 +46,8 @@ proto.plot = function(fullData, fullLayout, promises) {
 
     // might want to use map.loaded() ???
 
+    // how to get streaming to work ???
+
     if(!self.map) {
         promise = new Promise(function(resolve) {
             self.createMap(fullData, fullLayout, resolve);
@@ -52,8 +55,7 @@ proto.plot = function(fullData, fullLayout, promises) {
     }
     else {
         promise = new Promise(function(resolve) {
-            self.updateMap(fullData, fullLayout);
-            resolve();
+            self.updateMap(fullData, fullLayout, resolve);
         });
     }
 
@@ -71,14 +73,11 @@ proto.createMap = function(fullData, fullLayout, resolve) {
         zoom: opts.zoom
     });
 
-    map.on('load', function() {
+    map.once('load', function() {
         console.log('map on load')
-        self.updateMap(fullData, fullLayout);
+        self.updateData(fullData);
+        self.updateLayout(fullLayout);
         resolve();
-    });
-
-    map.on('load', function() {
-        console.log('map on load.style')
     });
 
     map.on('mousemove', function(eventData) {
@@ -93,8 +92,36 @@ proto.createMap = function(fullData, fullLayout, resolve) {
 
 };
 
-// is this async in general ???
-proto.updateMap = function(fullData, fullLayout) {
+proto.updateMap = function(fullData, fullLayout, resolve) {
+    var self = this,
+        map = self.map,
+        opts = fullLayout[self.id];
+
+    var currentStyle = self.getStyle(),
+        style = opts.style;
+
+    if(style !== currentStyle) {
+        console.log('reload style')
+        map.setStyle(convertStyleUrl(style));
+
+        map.style.once('load', function() {
+            console.log('on style reload')
+            // ...
+            self.traceHash = {};
+            self.updateData(fullData);
+            self.updateLayout(fullLayout);
+            resolve();
+        });
+    }
+    else {
+        console.log('not reload style')
+        self.updateData(fullData);
+        self.updateLayout(fullLayout);
+        resolve();
+    }
+};
+
+proto.updateData = function(fullData) {
     var traceHash = this.traceHash;
     var traceObj, i, j;
 
@@ -123,43 +150,44 @@ proto.updateMap = function(fullData, fullLayout) {
         traceObj.dispose();
         delete traceHash[id];
     }
+};
 
-    var map = this.map,
-        opts = fullLayout[this.id];
-
-    var styleUrl = map.getStyle().sprite,
-        style = opts.style;
-
-    if(styleUrl !== convertStyleUrl(style)) {
-        console.log('reload style')
-        var styleObject = map.getStyle(convertStyleUrl(style));
-
-        map.setStyle(styleObject);
-    }
+proto.updateLayout = function(fullLayout) {
+    var opts = fullLayout[this.id],
+        map = this.map;
 
     map.setCenter(convertCenter(opts.center));
     map.setZoom(opts.zoom);
+
+    this.updateDiv(fullLayout)
+//     resize()
 };
 
 proto.createDiv = function() {
-    var div = this.div = document.createElement('div');
-
-    div.id = this.uid;
+    var div = document.createElement('div');
     this.container.appendChild(div);
 
-    this.updateDiv();
+    div.id = this.uid;
+    div.style.position = 'absolute';
+
+    return div;
 };
 
 proto.updateDiv = function(fullLayout) {
     var div = this.div;
 
-    // TODO update dims based on _size
+    var domain = fullLayout[this.id].domain,
+        size = fullLayout._size,
+        style = div.style;
 
-    var style = div.style;
-    style.position = 'absolute';
-    style.top = 0;
-    style.bottom = 0;
-    style.width = '100%';
+    style.left = size.l + domain.x[0] * size.w + 'px';
+    style.top = size.t + (1 - domain.y[1]) * size.h + 'px';
+    style.width = size.w * (domain.x[1] - domain.x[0]) + 'px';
+    style.height = size.h * (domain.y[1] - domain.y[0]) + 'px';
+
+//     style.top = 0;
+//     style.bottom = 0;
+//     style.width = '100%';
 };
 
 proto.destroy = function() {
@@ -167,10 +195,16 @@ proto.destroy = function() {
     this.container.removerChild(this.div);
 };
 
+proto.getStyle = function() {
+    var name = this.map.getStyle().name;
+
+    return name.split(' ')[1].toLowerCase();
+};
+
 function convertStyleUrl(style) {
     return constants.styleUrlPrefix + style + '-' + constants.styleUrlSuffix;
-};
+}
 
 function convertCenter(center) {
     return [center.lon, center.lat];
-};
+}
