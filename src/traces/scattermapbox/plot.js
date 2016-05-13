@@ -52,21 +52,27 @@ proto.update = function update(trace) {
 
     console.log('scatter update');
 
-    this.sourceLines.setData(opts.geojsonLines);
     setOptions(this.map, this.idLayerLines, 'setLayoutProperty', opts.layoutLines);
-    setOptions(this.map, this.idLayerLines, 'setPaintProperty', opts.paintLines);
-
-    this.sourceMarkers.setData(opts.geojsonMarkers);
     setOptions(this.map, this.idLayerMarkers, 'setLayoutProperty', opts.layoutMarkers);
-    setOptions(this.map, this.idLayerMarkers, 'setPaintProperty', opts.paintMarkers);
+
+    if(opts.layoutLines.visibility === 'visible') {
+        this.sourceLines.setData(opts.geojsonLines);
+        setOptions(this.map, this.idLayerLines, 'setPaintProperty', opts.paintLines);
+    }
+
+    if(opts.layoutMarkers.visibility === 'visible') {
+        this.sourceMarkers.setData(opts.geojsonMarkers);
+        setOptions(this.map, this.idLayerMarkers, 'setPaintProperty', opts.paintMarkers);
+    }
 };
 
 proto.dispose = function dispose() {
-    this.removeLayer(this.idLayerMarkers);
-    this.removeSource(this.idSourceMarkers);
+    var map = this.map;
 
-    this.removeLayer(this.idLayerLines);
-    this.removeSource(this.idSourceLines);
+    map.removeLayer(this.idLayerMarkers);
+    map.removeSource(this.idSourceMarkers);
+    map.removeLayer(this.idLayerLines);
+    map.removeSource(this.idSourceLines);
 };
 
 function setOptions(map, id, methodName, opts) {

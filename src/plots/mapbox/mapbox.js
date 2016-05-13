@@ -12,21 +12,22 @@
 var mapboxgl = require('mapbox-gl');
 
 var constants = require('./constants');
+var xmlnsNamespaces = require('../../constants/xmlns_namespaces');
 
 
 function Mapbox(opts) {
     this.id = opts.id;
     this.gd = opts.gd;
     this.container = opts.container;
-    var fullLayout = this.fullLayout = opts.fullLayout;
 
-    this.uid = this.fullLayout._uid + '-' + this.id;
-    this.opts = this.fullLayout[this.id];
-    this.userOpts = this.gd.layout[this.id] || {};
+    var fullLayout = opts.fullLayout;
+    this.uid = fullLayout._uid + '-' + this.id;
+    this.opts = fullLayout[this.id];
 
-    // create div on instantiation for smoother first plot call
-    this.div = this.createDiv();
-    this.updateDiv(fullLayout);
+    // create div on instantiation for a smoother first plot call
+    this.div = null;
+    this.hoverLayer = null;
+    this.createFramework(fullLayout);
 
     this.map = null;
     this.traceHash = {};
@@ -42,8 +43,11 @@ module.exports = function createMapbox(opts) {
 
 proto.plot = function(fullData, fullLayout, promises) {
     var self = this;
-    var promise;
 
+    // feed in new mapbox options
+    self.opts = fullLayout[this.id];
+
+    var promise;
     // might want to use map.loaded() ???
 
     // how to get streaming to work ???
@@ -63,8 +67,8 @@ proto.plot = function(fullData, fullLayout, promises) {
 };
 
 proto.createMap = function(fullData, fullLayout, resolve) {
-    var self = this;
-    var opts = self.opts;
+    var self = this,
+        opts = this.opts;
 
     var map = self.map = new mapboxgl.Map({
         container: self.uid,
@@ -84,21 +88,21 @@ proto.createMap = function(fullData, fullLayout, resolve) {
         // hover code goes here !!!
     });
 
-    // TODO is that enough to keep layout and fullLayout in sync ???
-    map.on('move', function(eventData) {
-        map.getCenter();
-        map.getZoom();
+    // keep track of pan / zoom in user layout
+    map.on('move', function() {
+        var center = map.getCenter();
+        opts._input.center = opts.center = { lon: center.lng, lat: center.lat };
+        opts._input.zoom = opts.zoom = map.getZoom();
     });
 
 };
 
 proto.updateMap = function(fullData, fullLayout, resolve) {
     var self = this,
-        map = self.map,
-        opts = fullLayout[self.id];
+        map = self.map;
 
     var currentStyle = self.getStyle(),
-        style = opts.style;
+        style = self.opts.style;
 
     if(style !== currentStyle) {
         console.log('reload style')
@@ -106,8 +110,11 @@ proto.updateMap = function(fullData, fullLayout, resolve) {
 
         map.style.once('load', function() {
             console.log('on style reload')
-            // ...
+
+            // need to rebuild trace layers on reload
+            // to avoid 'lost event' errors
             self.traceHash = {};
+
             self.updateData(fullData);
             self.updateLayout(fullLayout);
             resolve();
@@ -153,41 +160,53 @@ proto.updateData = function(fullData) {
 };
 
 proto.updateLayout = function(fullLayout) {
-    var opts = fullLayout[this.id],
-        map = this.map;
+    var map = this.map,
+        opts = this.opts;
 
     map.setCenter(convertCenter(opts.center));
     map.setZoom(opts.zoom);
 
-    this.updateDiv(fullLayout)
-//     resize()
+
+    this.updateFramework(fullLayout)
+    this.map.resize();
 };
 
-proto.createDiv = function() {
-    var div = document.createElement('div');
-    this.container.appendChild(div);
+proto.createFramework = function(fullLayout) {
+    var div = this.div = document.createElement('div');
 
     div.id = this.uid;
     div.style.position = 'absolute';
 
-    return div;
+    var hoverLayer = this.hoverLayer = document.createElementNS(
+        xmlnsNamespaces.svg, 'svg'
+    );
+
+    var hoverStyle = hoverLayer.style;
+
+    hoverStyle.position = 'absolute';
+    hoverStyle.top = hoverStyle.left = '0px';
+    hoverStyle.width = hoverStyle.height = '100%';
+    hoverStyle['z-index'] = 20;
+    hoverStyle['pointer-events'] = 'none';
+
+    this.container.appendChild(div);
+    this.container.appendChild(hoverLayer);
+
+    this.updateFramework(fullLayout);
 };
 
-proto.updateDiv = function(fullLayout) {
-    var div = this.div;
-
+proto.updateFramework = function(fullLayout) {
     var domain = fullLayout[this.id].domain,
-        size = fullLayout._size,
-        style = div.style;
+        size = fullLayout._size;
 
-    style.left = size.l + domain.x[0] * size.w + 'px';
-    style.top = size.t + (1 - domain.y[1]) * size.h + 'px';
+    var style = this.div.style;
+
+    // Is this correct? It seems to get the map zoom level wrong?
+
     style.width = size.w * (domain.x[1] - domain.x[0]) + 'px';
     style.height = size.h * (domain.y[1] - domain.y[0]) + 'px';
-
-//     style.top = 0;
-//     style.bottom = 0;
-//     style.width = '100%';
+    style.left = size.l + domain.x[0] * size.w + 'px';
+    style.top = size.t + (1 - domain.y[1]) * size.h + 'px';
 };
 
 proto.destroy = function() {
