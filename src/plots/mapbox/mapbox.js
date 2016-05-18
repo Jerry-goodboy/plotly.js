@@ -21,10 +21,14 @@ function Mapbox(opts) {
     this.container = opts.container;
 
     var fullLayout = opts.fullLayout;
+
+    // unique id for this Mapbox instance
     this.uid = fullLayout._uid + '-' + this.id;
+
+    // full mapbox options (N.B. needs to be updated on every updates)
     this.opts = fullLayout[this.id];
 
-    // create div on instantiation for a smoother first plot call
+    // create framework on instantiation for a smoother first plot call
     this.div = null;
     this.hoverLayer = null;
     this.createFramework(fullLayout);
@@ -71,7 +75,7 @@ proto.createMap = function(fullData, fullLayout, resolve) {
         opts = this.opts;
 
     var map = self.map = new mapboxgl.Map({
-        container: self.uid,
+        container: self.div,
         style: convertStyleUrl(opts.style),
         center: convertCenter(opts.center),
         zoom: opts.zoom
