@@ -63,7 +63,8 @@ exports.plot = function plotMapbox(gd) {
                 gd: gd,
                 container: fullLayout._glcontainer.node(),
                 id: id,
-                fullLayout: fullLayout
+                fullLayout: fullLayout,
+                staticPlot: gd._context.staticPlot
             });
 
             fullLayout[id]._mapbox = mapbox;

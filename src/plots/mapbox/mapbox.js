@@ -19,6 +19,7 @@ function Mapbox(opts) {
     this.id = opts.id;
     this.gd = opts.gd;
     this.container = opts.container;
+    this.isStatic = opts.staticPlot;
 
     var fullLayout = opts.fullLayout;
 
@@ -78,16 +79,21 @@ proto.createMap = function(fullData, fullLayout, resolve) {
         container: self.div,
         style: convertStyleUrl(opts.style),
         center: convertCenter(opts.center),
-        zoom: opts.zoom
+        zoom: opts.zoom,
+        preserveDrawingBuffer: self.isStatic
     });
 
     map.once('load', function() {
         console.log('map on load')
         self.updateData(fullData);
         self.updateLayout(fullLayout);
-        resolve();
-    });
 
+        map.on('render', function() {
+            if(map.loaded()) {
+                map.off('render', this);
+                resolve();
+            }
+        });
     map.on('mousemove', function(eventData) {
         // hover code goes here !!!
     });
@@ -217,6 +223,10 @@ proto.destroy = function() {
     this.map.remove();
     this.container.removeChild(this.div);
     this.container.removeChild(this.hoverLayer);
+};
+
+proto.toImage = function(format) {
+    return this.map.getCanvas().toDataURL();
 };
 
 proto.getStyle = function() {
