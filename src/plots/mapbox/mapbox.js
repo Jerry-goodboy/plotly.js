@@ -94,8 +94,6 @@ proto.createMap = function(fullData, fullLayout, resolve) {
                 resolve();
             }
         });
-    map.on('mousemove', function(eventData) {
-        // hover code goes here !!!
     });
 
     // keep track of pan / zoom in user layout
@@ -104,6 +102,9 @@ proto.createMap = function(fullData, fullLayout, resolve) {
         opts._input.center = opts.center = { lon: center.lng, lat: center.lat };
         opts._input.zoom = opts.zoom = map.getZoom();
     });
+
+
+    // TODO hover labels
 
 };
 
@@ -176,6 +177,7 @@ proto.updateLayout = function(fullLayout) {
     map.setCenter(convertCenter(opts.center));
     map.setZoom(opts.zoom);
 
+    // TODO update layers
 
     this.updateFramework(fullLayout)
     this.map.resize();
