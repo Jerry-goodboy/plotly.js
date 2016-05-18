@@ -13,7 +13,7 @@ var mapboxgl = require('mapbox-gl');
 
 var Plots = require('../plots');
 var createMapbox = require('./mapbox');
-var CREDS = require('../../../creds.json');
+var CREDS = require('../../../../creds.json');
 
 
 exports.name = 'mapbox';
