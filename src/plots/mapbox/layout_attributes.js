@@ -42,8 +42,8 @@ module.exports = {
 
     style: {
         valType: 'enumerated',
-        values: ['streets', 'outdoors', 'light', 'dark', 'satellite', 'satellite-streets'],
-        dflt: 'streets',
+        values: ['basic', 'streets', 'outdoors', 'light', 'dark', 'satellite', 'satellite-streets'],
+        dflt: 'basic',
         description: [
             ''
         ].join(' ')
