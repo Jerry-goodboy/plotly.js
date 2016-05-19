@@ -9,8 +9,6 @@
 
 'use strict';
 
-var mapboxgl = require('mapbox-gl');
-
 var convert = require('./convert');
 
 
@@ -24,7 +22,7 @@ function ScatterMapbox(mapbox, uid) {
     this.idLayerMarkers = uid + '-layer-markers';
     this.idLayerLines = uid + '-layer-lines';
 
-    this.sourceLines = new mapboxgl.GeoJSONSource();
+    this.sourceLines = mapbox.createGeoJSONSource();
     this.map.addSource(this.idSourceLines, this.sourceLines);
     this.map.addLayer({
         id: this.idLayerLines,
@@ -33,7 +31,7 @@ function ScatterMapbox(mapbox, uid) {
         interactive: true
     });
 
-    this.sourceMarkers = new mapboxgl.GeoJSONSource();
+    this.sourceMarkers = mapbox.createGeoJSONSource();
     this.map.addSource(this.idSourceMarkers, this.sourceMarkers);
     this.map.addLayer({
         id: this.idLayerMarkers,

@@ -237,6 +237,20 @@ proto.getStyle = function() {
     return name.split(' ')[1].toLowerCase();
 };
 
+// convenience wrapper to create blank GeoJSON sources
+// and avoid 'invalid GeoJSON' errors
+proto.createGeoJSONSource = function() {
+    var blank = {
+        type: 'Feature',
+        geometry: {
+            type: 'Point',
+            coordinates: []
+        }
+    };
+
+    return new mapboxgl.GeoJSONSource({data: blank});
+};
+
 function convertStyleUrl(style) {
     return constants.styleUrlPrefix + style + '-' + constants.styleUrlSuffix;
 }
