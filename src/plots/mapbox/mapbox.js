@@ -84,6 +84,7 @@ proto.createMap = function(fullData, fullLayout, resolve) {
         bearing: opts.bearing,
         pitch: opts.pitch,
 
+        interactive: !self.isStatic,
         preserveDrawingBuffer: self.isStatic
     });
 
