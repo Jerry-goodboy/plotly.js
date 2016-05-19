@@ -241,7 +241,10 @@ proto.toImage = function(format) {
 proto.getStyle = function() {
     var name = this.map.getStyle().name;
 
-    return name.split(' ')[1].toLowerCase();
+    return name
+        .replace('Mapbox ', '')
+        .replace(' ', '-')
+        .toLowerCase();
 };
 
 // convenience wrapper to create blank GeoJSON sources
