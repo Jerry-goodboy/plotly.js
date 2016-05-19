@@ -62,6 +62,14 @@ module.exports = {
         valType: 'number',
         dflt: 1
     },
+    bearing: {
+        valType: 'number',
+        dflt: 0
+    },
+    pitch: {
+        valType: 'number',
+        dflt: 0
+    }
 
     // custom geojson or topojson layers
     layers: {

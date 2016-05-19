@@ -77,9 +77,13 @@ proto.createMap = function(fullData, fullLayout, resolve) {
 
     var map = self.map = new mapboxgl.Map({
         container: self.div,
+
         style: convertStyleUrl(opts.style),
         center: convertCenter(opts.center),
         zoom: opts.zoom,
+        bearing: opts.bearing,
+        pitch: opts.pitch,
+
         preserveDrawingBuffer: self.isStatic
     });
 
@@ -176,6 +180,8 @@ proto.updateLayout = function(fullLayout) {
 
     map.setCenter(convertCenter(opts.center));
     map.setZoom(opts.zoom);
+    map.setBearing(opts.bearing);
+    map.setPitch(opts.pitch);
 
     // TODO update layers
 

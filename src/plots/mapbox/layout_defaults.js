@@ -27,6 +27,8 @@ function handleDefaults(containerIn, containerOut, coerce) {
     coerce('center.lon');
     coerce('center.lat');
     coerce('zoom');
+    coerce('bearing');
+    coerce('pitch');
 
     containerOut._input = containerIn;
 }
