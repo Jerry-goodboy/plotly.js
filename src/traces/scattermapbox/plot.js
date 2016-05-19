@@ -41,6 +41,9 @@ function ScatterMapbox(mapbox, uid) {
     });
 
     // how to add 'symbol' layer ???
+    // https://www.mapbox.com/mapbox-gl-js/example/geojson-markers/
+    //
+    // which appear to support arrayOk attributes
 }
 
 var proto = ScatterMapbox.prototype;

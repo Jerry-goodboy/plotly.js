@@ -108,8 +108,11 @@ proto.createMap = function(fullData, fullLayout, resolve) {
         opts._input.zoom = opts.zoom = map.getZoom();
     });
 
+    // does not work !!
+    map.addControl(new mapboxgl.Navigation());
 
     // TODO hover labels
+    map.on('mousemove', function() {});
 
 };
 

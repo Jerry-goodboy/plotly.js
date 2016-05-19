@@ -72,8 +72,6 @@ module.exports = {
     }
 
     // custom geojson or topojson layers
-    layers: {
-
-    }
+//     layers: { }
 
 };
