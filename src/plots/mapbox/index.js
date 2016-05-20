@@ -13,6 +13,8 @@ var mapboxgl = require('mapbox-gl');
 
 var Plots = require('../plots');
 var createMapbox = require('./mapbox');
+var xmlnsNamespaces = require('../../constants/xmlns_namespaces');
+
 var CREDS = require('../../../../creds.json');
 
 
@@ -83,5 +85,32 @@ exports.clean = function(newFullData, newFullLayout, oldFullData, oldFullLayout)
         if(!newFullLayout[oldMapboxKey] && !!oldFullLayout[oldMapboxKey]._mapbox) {
             oldFullLayout[oldMapboxKey]._mapbox.destroy();
         }
+    }
+};
+
+exports.toSVG = function(gd) {
+    var fullLayout = gd._fullLayout,
+        subplotIds = Plots.getSubplotIds(fullLayout, 'mapbox'),
+        size = fullLayout._size;
+
+    for(var i = 0; i < subplotIds.length; i++) {
+        var opts = fullLayout[subplotIds[i]],
+            domain = opts.domain,
+            mapbox = opts._mapbox;
+
+        var imageData = mapbox.toImage('png');
+        var image = fullLayout._glimages.append('svg:image');
+
+        image.attr({
+            xmlns: xmlnsNamespaces.svg,
+            'xlink:href': imageData,
+            x: size.l + size.w * domain.x[0],
+            y: size.t + size.h * (1 - domain.y[1]),
+            width: size.w * (domain.x[1] - domain.x[0]),
+            height: size.h * (domain.y[1] - domain.y[0]),
+            preserveAspectRatio: 'none'
+        });
+
+        mapbox.destroy();
     }
 };
