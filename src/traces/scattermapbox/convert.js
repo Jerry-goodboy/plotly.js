@@ -84,16 +84,37 @@ function makeBlankGeoJSON() {
 }
 
 function makeLineGeoJSON(trace) {
+    var len = getCoordLen(trace),
+        connectgaps = trace.connectgaps;
+
+    var coords = [],
+        lineString = [];
+
+    for(var i = 0; i < len; i++) {
+        var lon = trace.lon[i],
+            lat = trace.lat[i];
+
+        if(checkLonLat(lon, lat)) {
+            lineString.push([+lon, +lat]);
+        }
+        else if(!connectgaps && lineString.length > 0) {
+            coords.push(lineString);
+            lineString = [];
+        }
+    }
+
+    coords.push(lineString);
+
     return {
         type: 'MultiLineString',
-        coordinates: [calcCoords(trace)]
+        coordinates: coords
     };
 }
 
 // N.B. `hash` is mutated here
 function makeMarkerGeoJSON(trace, hash) {
     var marker = trace.marker,
-        len = trace.lon.length,
+        len = getCoordLen(trace),
         hasColorArray = Array.isArray(marker.color),
         hasSizeArray = Array.isArray(marker.size);
 
@@ -117,7 +138,7 @@ function makeMarkerGeoJSON(trace, hash) {
         if(hasColorArray) translate(props, COLOR_PROP, marker.color, i);
         if(hasSizeArray) translate(props, SIZE_PROP, marker.size, i);
 
-        if(isNumeric(lon) && isNumeric(lat)) {
+        if(checkLonLat(lon, lat)) {
             features.push({
                 type: 'Feature',
                 geometry: {
@@ -199,19 +220,11 @@ function calcMarkerSize(trace, hash) {
     return out;
 }
 
+function checkLonLat(lon, lat) {
+    return isNumeric(lon) && isNumeric(lat);
+}
 
-function calcCoords(trace) {
-    var len = trace.lon.length;
-    var coordinates = [];
-
-    for(var i = 0; i < len; i++) {
-        var lon = trace.lon[i],
-            lat = trace.lat[i];
-
-        if(isNumeric(lon) && isNumeric(lat)) {
-            coordinates.push([+lon, +lat]);
-        }
-    }
-
-    return coordinates;
+// lon and lat have the same length after the defaults step
+function getCoordLen(trace) {
+    return trace.lon.length;
 }

@@ -9,6 +9,7 @@
 'use strict';
 
 var scatterGeoAttrs = require('../scattergeo/attributes');
+var scatterAttrs = require('../scatter/attributes');
 var plotAttrs = require('../../plots/attributes');
 var extendFlat = require('../../lib/extend').extendFlat;
 
@@ -42,7 +43,7 @@ module.exports = {
         dash: lineAttrs.dash  // TODO
     },
 
-    //connectgaps
+    connectgaps: scatterAttrs.connectgaps,
 
     marker: {
         symbol: {
