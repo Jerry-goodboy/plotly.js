@@ -53,9 +53,6 @@ proto.plot = function(fullData, fullLayout, promises) {
     self.opts = fullLayout[this.id];
 
     var promise;
-    // might want to use map.loaded() ???
-
-    // how to get streaming to work ???
 
     if(!self.map) {
         promise = new Promise(function(resolve) {
@@ -89,7 +86,6 @@ proto.createMap = function(fullData, fullLayout, resolve) {
     });
 
     map.once('load', function() {
-        console.log('map on load')
         self.updateData(fullData);
         self.updateLayout(fullLayout);
 
@@ -124,11 +120,9 @@ proto.updateMap = function(fullData, fullLayout, resolve) {
         style = self.opts.style;
 
     if(style !== currentStyle) {
-        console.log('reload style')
         map.setStyle(convertStyleUrl(style));
 
         map.style.once('load', function() {
-            console.log('on style reload')
 
             // need to rebuild trace layers on reload
             // to avoid 'lost event' errors
@@ -140,7 +134,6 @@ proto.updateMap = function(fullData, fullLayout, resolve) {
         });
     }
     else {
-        console.log('not reload style')
         self.updateData(fullData);
         self.updateLayout(fullLayout);
         resolve();
@@ -189,7 +182,7 @@ proto.updateLayout = function(fullLayout) {
 
     // TODO update layers
 
-    this.updateFramework(fullLayout)
+    this.updateFramework(fullLayout);
     this.map.resize();
 };
 
@@ -237,7 +230,7 @@ proto.destroy = function() {
     this.container.removeChild(this.hoverLayer);
 };
 
-proto.toImage = function(format) {
+proto.toImage = function() {
     return this.map.getCanvas().toDataURL();
 };
 

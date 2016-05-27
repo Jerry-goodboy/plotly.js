@@ -51,8 +51,6 @@ var proto = ScatterMapbox.prototype;
 proto.update = function update(trace) {
     var opts = convert(trace);
 
-    console.log('scatter update');
-
     setOptions(this.map, this.idLayerLines, 'setLayoutProperty', opts.layoutLines);
     setOptions(this.map, this.idLayerMarkers, 'setLayoutProperty', opts.layoutMarkers);
 
@@ -87,8 +85,6 @@ function setOptions(map, id, methodName, opts) {
 }
 
 module.exports = function createScatterMapbox(mapbox, trace) {
-    console.log('scatter create');
-
     var scatterMapbox = new ScatterMapbox(mapbox, trace.uid);
     scatterMapbox.update(trace);
 
