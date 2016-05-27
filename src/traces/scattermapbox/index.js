@@ -20,6 +20,8 @@ var ScatterMapbox = {};
 //  - support for marker.line ???
 ScatterMapbox.attributes = require('../scattergeo/attributes');
 ScatterMapbox.supplyDefaults = require('../scattergeo/defaults');
+ScatterMapbox.attributes = require('./attributes');
+ScatterMapbox.supplyDefaults = require('./defaults');
 ScatterMapbox.colorbar = require('../scatter/colorbar');
 ScatterMapbox.calc = require('../scattergeo/calc');
 ScatterMapbox.plot = require('./plot');
@@ -27,8 +29,7 @@ ScatterMapbox.plot = require('./plot');
 ScatterMapbox.moduleType = 'trace';
 ScatterMapbox.name = 'scattermapbox';
 ScatterMapbox.basePlotModule = require('../../plots/mapbox');
-ScatterMapbox.categories = ['mapbox', 'gl', 'symbols', 'showLegend'];
-// ScatterMapbox.categories = ['mapbox', 'gl', 'symbols', 'markerColorscale', 'showLegend'];
+ScatterMapbox.categories = ['mapbox', 'gl', 'symbols', 'markerColorscale', 'showLegend'];
 ScatterMapbox.meta = {
     hrName: 'scatter_mapbox',
     description: [
