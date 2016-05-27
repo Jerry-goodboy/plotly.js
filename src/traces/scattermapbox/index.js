@@ -16,10 +16,9 @@ var ScatterMapbox = {};
 //  - Different line dashes
 //  - no `locations` support
 //  - no 'text' mode support
-//  - arrayOk properties would require multi layers per source
-//  - support for marker.line ???
-ScatterMapbox.attributes = require('../scattergeo/attributes');
-ScatterMapbox.supplyDefaults = require('../scattergeo/defaults');
+//  - limited arrayOk
+//  - support for marker.line (could do it using two concentric circles)
+
 ScatterMapbox.attributes = require('./attributes');
 ScatterMapbox.supplyDefaults = require('./defaults');
 ScatterMapbox.colorbar = require('../scatter/colorbar');
